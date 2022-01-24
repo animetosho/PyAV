@@ -78,7 +78,26 @@ cdef class VideoReformatter(object):
         """
 
         cdef VideoFormat video_format = VideoFormat(format if format is not None else frame.format)
-        cdef int c_src_colorspace = (Colorspace[src_colorspace] if src_colorspace is not None else Colorspace.DEFAULT).value
+        cdef int c_src_colorspace = (Colorspace.DEFAULT).value
+        cdef lib.AVColorSpace src_cs
+        if src_colorspace is None:
+            with nogil:
+                src_cs = <lib.AVColorSpace> lib.av_frame_get_colorspace(frame.ptr)
+            
+            if src_cs == lib.AVCOL_SPC_BT709:
+                c_src_colorspace = lib.SWS_CS_ITU709
+            elif src_cs == lib.AVCOL_SPC_FCC:
+                c_src_colorspace = lib.SWS_CS_FCC
+            elif src_cs == lib.AVCOL_SPC_BT470BG:
+                c_src_colorspace = lib.SWS_CS_ITU601
+            elif src_cs == lib.AVCOL_SPC_SMPTE170M:
+                c_src_colorspace = lib.SWS_CS_SMPTE170M
+            elif src_cs == lib.AVCOL_SPC_SMPTE240M:
+                c_src_colorspace = lib.SWS_CS_SMPTE240M
+            elif src_cs == lib.AVCOL_SPC_BT2020_NCL or src_cs == lib.AVCOL_SPC_BT2020_CL:
+                c_src_colorspace = lib.SWS_CS_BT2020
+        else:
+            c_src_colorspace = Colorspace[src_colorspace]
         cdef int c_dst_colorspace = (Colorspace[dst_colorspace] if dst_colorspace is not None else Colorspace.DEFAULT).value
         cdef int c_interpolation = (Interpolation[interpolation] if interpolation is not None else Interpolation.BILINEAR).value
 
@@ -135,6 +154,7 @@ cdef class VideoReformatter(object):
         cdef const int *tbl
         cdef int src_range, dst_range, brightness, contrast, saturation
         cdef int ret
+        cdef lib.AVColorRange src_rg
         if src_colorspace != dst_colorspace:
 
             with nogil:
@@ -161,7 +181,14 @@ cdef class VideoReformatter(object):
                     inv_tbl = lib.sws_getCoefficients(src_colorspace)
                 if dst_colorspace != lib.SWS_CS_DEFAULT:
                     tbl = lib.sws_getCoefficients(dst_colorspace)
-
+                
+                # TODO: perhaps only do this if a specific src_colorspace wasn't specified? Ideally, range should be specifiable by user [https://github.com/PyAV-Org/PyAV/pull/686]
+                src_rg = <lib.AVColorRange> lib.av_frame_get_color_range(frame.ptr)
+                if src_rg == lib.AVCOL_RANGE_MPEG:
+                    src_range = 0
+                elif src_rg == lib.AVCOL_RANGE_JPEG:
+                    src_range = 1
+                
                 # Apply!
                 ret = lib.sws_setColorspaceDetails(
                     self.ptr,

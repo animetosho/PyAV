@@ -117,6 +117,30 @@ cdef extern from "libavcodec/avcodec.h" nogil:
         AVDISCARD_NONKEY
         AVDISCARD_ALL
 
+    cdef enum AVColorSpace:
+        AVCOL_SPC_RGB
+        AVCOL_SPC_BT709
+        AVCOL_SPC_UNSPECIFIED
+        AVCOL_SPC_RESERVED
+        AVCOL_SPC_FCC
+        AVCOL_SPC_BT470BG
+        AVCOL_SPC_SMPTE170M
+        AVCOL_SPC_SMPTE240M
+        AVCOL_SPC_YCGCO
+        AVCOL_SPC_BT2020_NCL
+        AVCOL_SPC_BT2020_CL
+        AVCOL_SPC_SMPTE2085
+        AVCOL_SPC_CHROMA_DERIVED_NCL
+        AVCOL_SPC_CHROMA_DERIVED_CL
+        AVCOL_SPC_ICTCP
+        AVCOL_SPC_NB
+
+    cdef enum AVColorRange:
+        AVCOL_RANGE_UNSPECIFIED
+        AVCOL_RANGE_MPEG
+        AVCOL_RANGE_JPEG
+        AVCOL_RANGE_NB
+
     cdef struct AVCodec:
 
         char *name
@@ -451,4 +475,7 @@ cdef extern from "libavcodec/avcodec.h" nogil:
         AVCodecParameters *par,
         const AVCodecContext *codec,
     )
+
+    cdef AVColorSpace av_frame_get_colorspace(AVFrame*)
+    cdef AVColorRange av_frame_get_color_range(AVFrame*)
 
