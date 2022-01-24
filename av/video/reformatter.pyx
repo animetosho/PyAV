@@ -30,6 +30,7 @@ Colorspace = define_enum('Colorspace', __name__, (
     ('SMPTE170M', lib.SWS_CS_SMPTE170M),
     ('SMPTE240M', lib.SWS_CS_SMPTE240M),
     ('DEFAULT', lib.SWS_CS_DEFAULT),
+    ('BT2020', lib.SWS_CS_BT2020),
 
     # Lowercase for b/c.
     ('itu709', lib.SWS_CS_ITU709),
@@ -38,6 +39,7 @@ Colorspace = define_enum('Colorspace', __name__, (
     ('itu624', lib.SWS_CS_SMPTE170M),
     ('smpte240', lib.SWS_CS_SMPTE240M),
     ('default', lib.SWS_CS_DEFAULT),
+    ('bt2020', lib.SWS_CS_BT2020),
 
 ))
 
