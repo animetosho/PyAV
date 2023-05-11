@@ -144,7 +144,8 @@ cdef class VideoReformatter(object):
                 width,
                 height,
                 dst_format,
-                interpolation,
+                # avoid bad YUV->RGB24 conversion: https://stackoverflow.com/a/70894724/459150
+                interpolation | lib.SWS_FULL_CHR_H_INT | lib.SWS_ACCURATE_RND,
                 NULL,
                 NULL,
                 NULL
