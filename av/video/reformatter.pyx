@@ -96,6 +96,9 @@ cdef class VideoReformatter(object):
                 c_src_colorspace = lib.SWS_CS_SMPTE240M
             elif src_cs == lib.AVCOL_SPC_BT2020_NCL or src_cs == lib.AVCOL_SPC_BT2020_CL:
                 c_src_colorspace = lib.SWS_CS_BT2020
+            elif src_cs == lib.AVCOL_SPC_UNSPECIFIED and frame.ptr.height >= 720:
+                # default to BT709 if height >= 720
+                c_src_colorspace = lib.SWS_CS_ITU709
         else:
             c_src_colorspace = Colorspace[src_colorspace]
         cdef int c_dst_colorspace = (Colorspace[dst_colorspace] if dst_colorspace is not None else Colorspace.DEFAULT).value
